@@ -45,12 +45,18 @@ exports.login = async (req, res) => {
       res.json({
         token,
         user: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role
-        }
-      });
+           id: user.id,
+           firstName: user.firstName,
+           lastName: user.lastName,
+           role: user.role,
+           grade: user.grade,
+           gender: user.gender,
+           phone: user.phone,
+           email: user.email,
+           statut: user.statut
+  }
+});
+
     });
   } catch (err) {
     console.error('Erreur lors de la connexion:', err.message);
