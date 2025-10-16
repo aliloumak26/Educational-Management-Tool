@@ -2,20 +2,19 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
-const modulesRoutes = require('./modulesRoutes'); // Chemin corrigé
+const modulesRoutes = require('./modulesRoutes');
 const organigramRoutes = require('./organigramRoutes');
 const fdvRoutes = require('./fdvRoutes');
-const allTeachersRoutes = require("./allTeachers")
-const moduleEachRoutes = require("./moduleEach")
-const infos = require("./infosEach")
-const addTeacherRoutes = require("./addTeacher")
-const teacherinfosRoutes = require("./teacherinfosRoutes")
-const moduleRoutes = require("./moduleRoutes")
-const teachercharges = require("./teacher-charges")
-const cahierDeChargesRoutes = require("./cahierDeChargesRoutes")
-const forgotPasswordRoutes = require("./forgotPasswordRoutes") 
-
-
+const allTeachersRoutes = require("./allTeachers");
+const moduleEachRoutes = require("./moduleEach");
+const infos = require("./infosEach");
+const addTeacherRoutes = require("./addTeacher");
+const teacherinfosRoutes = require("./teacherinfosRoutes");
+const moduleRoutes = require("./moduleRoutes");
+const teachercharges = require("./teacher-charges");
+const cahierDeChargesRoutes = require("./cahierDeChargesRoutes");
+const forgotPasswordRoutes = require("./forgotPasswordRoutes");
+const { logger } = require("./logger.js"); // ✅ import du logger
 
 const app = express();
 
@@ -24,28 +23,34 @@ app.use(express.json());
 app.use(cors({
   origin: 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'], // Ajoutez x-auth-token ici
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
   credentials: true
 }));
 
-// Logging des requêtes (nouveau middleware ajouté)
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  next();
-});
+// ✅ Middleware de logging vers access.log
+app.use(logger);
 
-// Routes
+// Routes principales
 app.use('/api/auth', authRoutes);
-app.use("/api/module", moduleRoutes)
+app.use("/api/module", moduleRoutes);
 app.use('/api/modules', modulesRoutes);
 app.use('/api/organigram', organigramRoutes);
+app.use('/api/fdv', fdvRoutes);
+app.use("/api/teachers", allTeachersRoutes);
+app.use("/api/profs", moduleEachRoutes);
+app.use("/api/infos", infos);
+app.use("/api/addteacher", addTeacherRoutes);
+app.use('/api/teachers', teacherinfosRoutes);
+app.use('/api/teacher-charge', teachercharges);
+app.use("/api/cahier-de-charges", cahierDeChargesRoutes);
+app.use("/api/auth", forgotPasswordRoutes);
 
-// Route de test (nouvelle route ajoutée)
+// ✅ Route de test
 app.get('/api/status', (req, res) => {
   res.json({ status: 'API fonctionnelle', timestamp: new Date() });
 });
 
-// Gestion des erreurs améliorée
+// ✅ Gestion des erreurs améliorée
 app.use((err, req, res, next) => {
   console.error('Erreur:', {
     message: err.message,
@@ -61,19 +66,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use("/api/teachers", allTeachersRoutes)
-app.use("/api/profs", moduleEachRoutes)
-app.use("/api/infos", infos)
-app.use("/api/addteacher", addTeacherRoutes)
-app.use('/api/teachers', teacherinfosRoutes)
-app.use('/api/teacher-charge', teachercharges)
-app.use("/api/cahier-de-charges", cahierDeChargesRoutes) 
-app.use("/api/auth", forgotPasswordRoutes) 
-
-
-app.use('/api/fdv', fdvRoutes);
-
-
+// ✅ Lancement du serveur
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`\nServeur démarré sur le port ${PORT}`);
